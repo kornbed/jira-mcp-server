@@ -1,3 +1,4 @@
+<!-- markdownlint-disable MD029 -->
 # Jira MCP Server for Cursor
 
 A TypeScript-based MCP server that integrates with Jira, allowing Cursor to interact with Jira tickets.
@@ -22,7 +23,7 @@ npm install
 
 2. Create a `.env` file based on `.env.example` and fill in your Jira credentials:
 
-```
+```env
 JIRA_HOST=https://your-domain.atlassian.net
 JIRA_EMAIL=your-email@example.com
 JIRA_API_TOKEN=your-api-token
@@ -78,7 +79,7 @@ npm run build
 
 ```json
 {
-  "mcps": {
+  "mcpServers": {
     "jira": {
       "command": "node",
       "args": ["/path/to/jira-mcp-cursor/dist/server.js"]
@@ -98,15 +99,15 @@ npm start
 ```
 
 2. Open Cursor's settings:
-   - Click on the Cursor menu
-   - Select "Settings" (or use the keyboard shortcut)
-   - Navigate to the "Extensions" or "Integrations" section
+   * Click on the Cursor menu
+   * Select "Settings" (or use the keyboard shortcut)
+   * Navigate to the "Extensions" or "Integrations" section
 
 3. Add the MCP configuration:
 
 ```json
 {
-  "mcps": {
+  "mcpServers": {
     "jira": {
       "url": "http://localhost:3000",
       "capabilities": [
