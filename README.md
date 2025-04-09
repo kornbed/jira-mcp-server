@@ -15,11 +15,13 @@ A TypeScript-based MCP server that integrates with Jira, allowing Cursor to inte
 ## Setup
 
 1. Install dependencies:
+
 ```bash
 npm install
 ```
 
 2. Create a `.env` file based on `.env.example` and fill in your Jira credentials:
+
 ```
 JIRA_HOST=https://your-domain.atlassian.net
 JIRA_EMAIL=your-email@example.com
@@ -28,13 +30,15 @@ PORT=3000
 ```
 
 To get your Jira API token:
-1. Log in to https://id.atlassian.com/manage/api-tokens
+
+1. Log in to <https://id.atlassian.com/manage/api-tokens>
 2. Click "Create API token"
 3. Copy the token and paste it in your `.env` file
 
 ## Development
 
 Run the development server:
+
 ```bash
 npm run dev
 ```
@@ -42,11 +46,13 @@ npm run dev
 ## Build and Run
 
 Build the project:
+
 ```bash
 npm run build
 ```
 
 Start the server:
+
 ```bash
 npm start
 ```
@@ -58,6 +64,7 @@ To use this MCP server with Cursor, you have two options:
 ### Option 1: Command-based Integration (Recommended)
 
 1. Build the project:
+
 ```bash
 npm run build
 ```
@@ -68,6 +75,7 @@ npm run build
    - Navigate to the "Extensions" or "Integrations" section
 
 3. Add the MCP configuration:
+
 ```json
 {
   "mcps": {
@@ -84,6 +92,7 @@ Replace `/path/to/jira-mcp-cursor` with the absolute path to your project.
 ### Option 2: HTTP-based Integration (Alternative)
 
 1. Start the MCP server (if not already running):
+
 ```bash
 npm start
 ```
@@ -94,6 +103,7 @@ npm start
    - Navigate to the "Extensions" or "Integrations" section
 
 3. Add the MCP configuration:
+
 ```json
 {
   "mcps": {
@@ -133,48 +143,228 @@ The server implements the Model-Client-Protocol (MCP) required by Cursor:
 ## API Endpoints
 
 ### List Tickets
+
+Retrieves a list of Jira tickets, optionally filtered by a JQL query.
+
+**Endpoint:** `GET /api/tickets`
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| jql | string | No | Jira Query Language (JQL) string to filter tickets |
+
+**Example Request:**
+
+```http
+GET /api/tickets?jql=project=TEST+AND+status=Open
 ```
-GET /api/tickets
-Query params:
-  - jql (optional): Jira Query Language string
+
+**Example Response:**
+
+```text
+TEST-123: Example ticket (Open)
+TEST-124: Another ticket (In Progress)
 ```
 
 ### Get Ticket
+
+Retrieves detailed information about a specific ticket.
+
+**Endpoint:** `GET /api/tickets/:id`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The Jira ticket ID (e.g., TEST-123) |
+
+**Example Request:**
+
+```http
+GET /api/tickets/TEST-123
 ```
-GET /api/tickets/:id
+
+**Example Response:**
+
+```text
+Key: TEST-123
+Summary: Example ticket
+Status: Open
+Type: Task
+Description:
+Detailed ticket description
 ```
 
 ### Get Ticket Comments
+
+Retrieves all comments for a specific ticket.
+
+**Endpoint:** `GET /api/tickets/:id/comments`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The Jira ticket ID (e.g., TEST-123) |
+
+**Example Request:**
+
+```http
+GET /api/tickets/TEST-123/comments
 ```
-GET /api/tickets/:id/comments
+
+**Example Response:**
+
+```text
+[3/20/2024, 10:00:00 AM] John Doe:
+Comment text
+---
+
+[3/20/2024, 9:30:00 AM] Jane Smith:
+Another comment
+---
 ```
 
 ### Create Ticket
-```
+
+Creates a new Jira ticket.
+
+**Endpoint:** `POST /api/tickets`
+
+**Request Body:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| summary | string | Yes | The ticket summary |
+| description | string | Yes | The ticket description |
+| projectKey | string | Yes | The project key (e.g., TEST) |
+| issueType | string | Yes | The type of issue (e.g., Task, Bug) |
+
+**Example Request:**
+
+```http
 POST /api/tickets
-Body:
+Content-Type: application/json
+
 {
-  "summary": "Ticket summary",
-  "description": "Ticket description",
-  "projectKey": "PROJECT",
+  "summary": "New feature request",
+  "description": "Implement new functionality",
+  "projectKey": "TEST",
   "issueType": "Task"
 }
 ```
 
-### Add Comment
+**Example Response:**
+
+```text
+Created ticket: TEST-124
 ```
-POST /api/tickets/:id/comments
-Body:
+
+### Add Comment
+
+Adds a new comment to an existing ticket.
+
+**Endpoint:** `POST /api/tickets/:id/comments`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The Jira ticket ID (e.g., TEST-123) |
+
+**Request Body:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| body | string | Yes | The comment text |
+
+**Example Request:**
+
+```http
+POST /api/tickets/TEST-123/comments
+Content-Type: application/json
+
 {
-  "body": "Comment text"
+  "body": "This is a new comment"
 }
 ```
 
-### Update Status
+**Example Response:**
+
+```text
+Added comment to TEST-123
 ```
-POST /api/tickets/:id/status
-Body:
+
+### Update Status
+
+Updates the status of an existing ticket.
+
+**Endpoint:** `POST /api/tickets/:id/status`
+
+**Path Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| id | string | Yes | The Jira ticket ID (e.g., TEST-123) |
+
+**Request Body:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| transitionId | string | Yes | The ID of the transition to perform |
+
+**Example Request:**
+
+```http
+POST /api/tickets/TEST-123/status
+Content-Type: application/json
+
 {
-  "transitionId": "21" // The ID of the transition to perform
+  "transitionId": "21"
 }
-``` 
+```
+
+**Example Response:**
+
+```text
+Updated status of TEST-123
+```
+
+### Search Tickets
+
+Searches for tickets across specified projects using text search.
+
+**Endpoint:** `GET /api/tickets/search`
+
+**Query Parameters:**
+
+| Parameter | Type | Required | Description |
+|-----------|------|----------|-------------|
+| searchText | string | Yes | Text to search for in tickets |
+| projectKeys | string | Yes | Comma-separated list of project keys to search in |
+| maxResults | number | No | Maximum number of results to return (default: 50) |
+
+**Example Request:**
+
+```http
+GET /api/tickets/search?searchText=login+bug&projectKeys=TEST,PROD&maxResults=10
+```
+
+**Example Response:**
+
+```text
+Found 2 tickets matching "login bug"
+
+[TEST] TEST-123: Login page bug
+Status: Open (Updated: 3/20/2024, 10:00:00 AM)
+Description:
+Users unable to login using SSO
+----------------------------------------
+
+[PROD] PROD-456: Fix login performance
+Status: In Progress (Updated: 3/19/2024, 3:30:00 PM)
+Description:
+Login page taking too long to load
+----------------------------------------
+```
